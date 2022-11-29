@@ -6,9 +6,13 @@ import tanjun
 
 username_db_lock = threading.Lock()
 
-# Create the component.
-# Template courtesy of https://github.com/parafoxia/hikari-intro
 component = tanjun.Component()
+
+# This module provides slash commands for linking and unliking Discord IDs with
+# Advent of Code User IDs. Linking isn't really beneficial right now except to
+# show your name in notifications.
+# e.g. "User #123 submitted!" vs "<@kilolympus> submitted!"
+# Pings are disabled anyway, so this is a purely cosmetic aspect.
 
 
 @component.with_slash_command

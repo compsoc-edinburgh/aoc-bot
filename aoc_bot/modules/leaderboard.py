@@ -3,7 +3,8 @@
 # https://github.com/tofran/advent-of-code-leaderboard-notifier
 #
 #
-# Modifications by Yuto Takano under MIT license
+# Modifications by Yuto Takano under MIT license:
+#   Add type hints, inlined short functions, integrated with tanjun
 #
 import argparse
 import json
@@ -15,8 +16,6 @@ import hikari
 import requests
 import tanjun
 
-# Create the component.
-# Template courtesy of https://github.com/parafoxia/hikari-intro
 component = tanjun.Component()
 
 

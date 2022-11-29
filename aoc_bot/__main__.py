@@ -63,9 +63,6 @@ def main():
     args = parser.parse_args()
     bot = hikari.GatewayBot(token=args.discord_token)
 
-    # Start an asynchronous scheduler in the background for checking and sending
-    # updates to the leaderboard, separate from the bot.
-
     (
         # Setting `declare_global_commands` to True will propagate commands globally,
         # which can take up to an hour to update. This bot only needs to work in one
