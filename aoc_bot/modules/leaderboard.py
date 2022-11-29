@@ -187,7 +187,7 @@ def display_aoc_user(mapping_file: str, aoc_user: Any) -> str:
 
 
 @component.with_schedule
-@tanjun.as_time_schedule(minutes=[0, 15, 30, 45, 52])
+@tanjun.as_time_schedule(minutes=[0, 15, 30, 45])
 async def on_schedule(
     cli_args: argparse.Namespace = tanjun.inject(type=argparse.Namespace),
     bot: hikari.GatewayBot = tanjun.inject(type=hikari.GatewayBot),
