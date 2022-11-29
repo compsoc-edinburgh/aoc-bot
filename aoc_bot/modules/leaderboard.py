@@ -153,7 +153,7 @@ async def send_webhook_notification(
         webhook=webhook_id,
         token=webhook_token,
         username="CompSoc AoC",
-        avatar_url="https://img.freepik.com/free-vector/vintage-christmas-tree-with-gifts_23-2148759404.jpg?w=2000",
+        avatar_url="https://i.imgur.com/LDnEjzh.png",
         mentions_everyone=False,
         user_mentions=False,
         content=content,
