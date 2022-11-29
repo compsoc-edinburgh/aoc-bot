@@ -2,6 +2,7 @@ cache.json
 mapping.json
 *.backup
 run.sh
+run_prod.sh
 .vscode/
 
 # Byte-compiled / optimized / DLL files
