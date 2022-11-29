@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "aoc-bot"
+version = "0.1.0"
+description = ""
+authors = ["Yuto Takano <moa17stock@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.9, <3.12"
+requests = "^2.28.1"
+hikari = {extras = ["server"], version = "^2.0.0-alpha.112"}
+hikari-tanjun = "^2.10.0-alpha.1"
+datargs = "^0.11.0"
+apscheduler = {git = "https://github.com/agronholm/apscheduler.git", rev = "4.0.0a2"}
+
+[tool.poetry.dev-dependencies]
+black = "^22.10.0"
+mypy = "^0.991"
+isort = "^5.10.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
