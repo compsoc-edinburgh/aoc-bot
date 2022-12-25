@@ -57,6 +57,12 @@ parser.add_argument(
     action="store_true",
     help="If set, will only notify when users achieve both stars. Otherwise will notify for each one.",
 )
+parser.add_argument(
+    "--completion-role",
+    required=True,
+    type=int,
+    help="The green role to give upon completion. This role snowflake ID has to exist in the guild specified with --slash-guild-id.",
+)
 
 
 def main():

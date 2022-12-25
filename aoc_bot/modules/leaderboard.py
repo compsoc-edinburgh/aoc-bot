@@ -155,6 +155,7 @@ async def send_webhook_notification(
         avatar_url="https://i.imgur.com/LDnEjzh.png",
         mentions_everyone=False,
         user_mentions=False,
+        role_mentions=False,
         content=content,
     )
 
@@ -183,6 +184,108 @@ def display_aoc_user(mapping_file: str, aoc_user: Any) -> str:
 
     except (KeyError, FileNotFoundError, json.decoder.JSONDecodeError):
         return aoc_user.get("name", "Unknown User")
+
+
+def solved_all_days(events: Set[Tuple[str, str, str]], member_id: str) -> bool:
+    """Returns true if a given member has solved all 25 Part 2 problems for a
+    given event list generated from get_leaderboard_set().
+
+    Parameters
+    ----------
+    events : Set[Tuple[str, str, str]]
+        The event list generated from get_leaderboard_set()
+    member_id : str
+        The AoC member to check for
+
+    Returns
+    -------
+    bool
+        True if the user has solved all 50 challenges, False otherwise.
+    """
+    return all(
+        any(
+            [
+                True
+                for event in events
+                if event[0] == member_id and event[1] == str(day) and event[2] == "2"
+            ]
+        )
+        for day in range(1, 26)
+    )
+
+
+def display_final_message(mapping_file: str, member_id: str, role_id: str) -> str:
+    """Pretty-print a final message upon completing all 25 days and 50 challenges.
+    If the user has a Discord account linked, show that they are eligible for
+    a role. If they are not linked, suggest that it's not too late for them to
+    do so now.
+
+    Parameters
+    ----------
+    mapping_file : str
+        The path to the username mapping file, containing JSON keyed by AoC user
+        id.
+    member_id : str
+        The AoC member to send the message for
+
+    Returns
+    -------
+    str
+        The congratulatory message.
+    """
+    string = "🎉 **Congrats on completing all 25 days of AoC 2022!** "
+    try:
+        with open(mapping_file, "r") as f:
+            mapping: dict[str, str] = json.load(f)
+            assert member_id in mapping
+            string += (
+                f"As a reward, you get the <@&{role_id}> role until the end of January!"
+            )
+
+    except (AssertionError, KeyError, FileNotFoundError, json.decoder.JSONDecodeError):
+        string += "If you want to receive a coloured name, link your AoC account with Discord with `/link_aoc`!"
+
+    return string
+
+
+async def give_role(
+    bot: hikari.GatewayBot,
+    guild_id: str,
+    mapping_file: str,
+    member_id: str,
+    role_id: str,
+):
+    """Give the role specified by the snowflake ID to a potential Discord user
+    linked by the AoC member ID and a mapping file.
+
+    Parameters
+    ----------
+    bot : hikari.GatewayBot
+        The bot to perform the REST operations from
+    guild_id : str
+        The guild where the role should be given in
+    mapping_file : str
+        The path to the username mapping file
+    member_id : str
+        The AoC member ID to query for.
+    role_id : str
+        The Discord snowflake for the role to give. Must exist in the guild
+        specified by guild_id.
+    """
+    try:
+        with open(mapping_file, "r") as f:
+            mapping: dict[str, str] = json.load(f)
+            assert member_id in mapping
+            await bot.rest.add_role_to_member(
+                guild=int(guild_id),
+                user=int(mapping[member_id]),
+                role=int(role_id),
+                reason="Completion of AoC 2022!",
+            )
+    except hikari.ForbiddenError:
+        print("Lacking permission to update roles")
+    finally:
+        return
 
 
 @component.with_schedule
@@ -224,8 +327,11 @@ async def on_schedule(
         save_cached_leaderboard(new_leaderboard, cache_file=cli_args.cache_file)
         return
 
-    messages = [
-        "[{}] {} solved Day #{}.".format(
+    # Accumlate all messages for updates at this check. There can be multiple
+    # people!
+    messages: list[str] = []
+    for member_id, day, part in diff:
+        message = "[{}] {} solved Day #{}.".format(
             "﹡﹡" if part == "2" else "﹡　",
             display_aoc_user(
                 mapping_file=cli_args.mapping_file,
@@ -233,8 +339,23 @@ async def on_schedule(
             ),
             day,
         )
-        for member_id, day, part in diff
-    ]
+
+        # If the person solved all 25 days and 50 challenges, add a new congratulatory
+        # line and give them a role based on the config.
+        if solved_all_days(new_events, member_id):
+            message += "\n" + display_final_message(
+                mapping_file=cli_args.mapping_file,
+                member_id=member_id,
+                role_id=cli_args.completion_role,
+            )
+            await give_role(
+                bot=bot,
+                guild_id=cli_args.slash_guild_id,
+                mapping_file=cli_args.mapping_file,
+                member_id=member_id,
+                role_id=cli_args.completion_role,
+            )
+        messages.append(message)
 
     await send_webhook_notification(
         bot=bot,

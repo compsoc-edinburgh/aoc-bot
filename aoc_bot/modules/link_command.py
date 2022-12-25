@@ -2,6 +2,9 @@ import argparse
 import json
 import threading
 
+import aoc_bot.modules.leaderboard as leaderboard
+
+import hikari
 import tanjun
 
 username_db_lock = threading.Lock()
@@ -26,6 +29,7 @@ async def link_command(
     ctx: tanjun.abc.Context,
     aoc_id: int,
     cli_args: argparse.Namespace = tanjun.inject(type=argparse.Namespace),
+    bot: hikari.GatewayBot = tanjun.inject(type=hikari.GatewayBot),
 ) -> None:
     # Make sure no other threads modify content by acquiring a mutex
     # This is especially important since we separate the read and write operations.
@@ -57,6 +61,33 @@ async def link_command(
                 )
                 await ctx.respond(
                     f"Linked {ctx.author.username} with AoC User ID {str(aoc_id)}!"
+                )
+
+            # Now check if they have completed 25 days, 50 challenges
+            # No need to retrieve the new leadeboard, if they issued /link
+            # it's pretty much guaranteed their data's already been fetched.
+            # If it's not complete yet, it'll be triggered in the next update
+            # anyway.
+            events = leaderboard.get_leaderboard_set(
+                leaderboard.retrieve_cached_leaderboard(cache_file=cli_args.cache_file),
+                require_both=cli_args.require_both_stars,
+            )
+            if leaderboard.solved_all_days(events, str(aoc_id)):
+                # Hide user ID at least on the public notification, but still
+                # include the username since the final message itself doesn't
+                # contain any identifying information.
+                await leaderboard.send_webhook_notification(
+                    bot,
+                    f"{ctx.author.mention} linked their account.\n{leaderboard.display_final_message(cli_args.mapping_file, str(aoc_id), cli_args.completion_role)}",
+                    webhook_id=cli_args.webhook_id,
+                    webhook_token=cli_args.webhook_token,
+                )
+                await leaderboard.give_role(
+                    bot=bot,
+                    guild_id=cli_args.slash_guild_id,
+                    mapping_file=cli_args.mapping_file,
+                    member_id=str(aoc_id),
+                    role_id=cli_args.completion_role,
                 )
 
         except FileNotFoundError as e:
