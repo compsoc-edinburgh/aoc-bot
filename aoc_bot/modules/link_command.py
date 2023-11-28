@@ -53,6 +53,19 @@ async def link_command(
         mapping[str(aoc_id)] = str(ctx.author.id)
 
         try:
+            # Attempt to retrieve the cached leaderboard, so we can check if
+            # the user has a name on AoC. Also, it helps to check if they've
+            # completed all 25 days.
+            cached_leaderboard = leaderboard.retrieve_cached_leaderboard(cache_file=cli_args.cache_file)
+
+            aoc_username = f"Anonymous User #{aoc_id}"
+            if ("members" in cached_leaderboard and
+                str(aoc_id) in cached_leaderboard["members"] and
+                "name" in cached_leaderboard["members"][str(aoc_id)]):
+                # If the user has a name, specify it for the notification, just
+                # so they can double-check.
+                aoc_username = cached_leaderboard["members"][str(aoc_id)]["name"]
+
             with open(cli_args.mapping_file, "w") as f:
                 json.dump(
                     mapping,
@@ -60,16 +73,16 @@ async def link_command(
                     indent=2,  # Pretty-print it for easy of debugging
                 )
                 await ctx.respond(
-                    f"Linked {ctx.author.username} with AoC User ID {str(aoc_id)}!"
+                    f"Linked {ctx.author.username} with AoC User ID {str(aoc_id)} ({aoc_username})!"
                 )
 
             # Now check if they have completed 25 days, 50 challenges
-            # No need to retrieve the new leadeboard, if they issued /link
-            # it's pretty much guaranteed their data's already been fetched.
-            # If it's not complete yet, it'll be triggered in the next update
-            # anyway.
+            # We can use the cached leaderboard, since if they issued /link
+            # it's pretty much guaranteed their data's already been fetched
+            # before. If it's not registered complete yet, it'll be triggered in
+            # the next update anyway.
             events = leaderboard.get_leaderboard_set(
-                leaderboard.retrieve_cached_leaderboard(cache_file=cli_args.cache_file),
+                cached_leaderboard,
                 require_both=cli_args.require_both_stars,
             )
             if leaderboard.solved_all_days(events, str(aoc_id)):
