@@ -250,7 +250,7 @@ def display_final_message(mapping_file: str, member_id: str, role_id: Optional[s
         except (AssertionError, KeyError, FileNotFoundError, json.decoder.JSONDecodeError):
             # If a user links their AoC account after completing all 25 days,
             # they will automatically get the role. See link_command.py.
-            string += "If you want to receive a coloured name as a reward, link your AoC account with `/link`!"
+            string += "If you want to receive a coloured name as a reward, link your AoC account with `/link_aoc`!"
 
     return string
 
