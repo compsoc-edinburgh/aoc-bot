@@ -59,7 +59,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--completion-role",
-    required=True,
+    required=False,
     type=int,
     help="The green role to give upon completion. This role snowflake ID has to exist in the guild specified with --slash-guild-id.",
 )
