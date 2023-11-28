@@ -58,7 +58,7 @@ async def link_command(
             # completed all 25 days.
             cached_leaderboard = leaderboard.retrieve_cached_leaderboard(cache_file=cli_args.cache_file)
 
-            aoc_username = f"Anonymous User #{aoc_id}"
+            aoc_username = f"Anonymous User"
             if ("members" in cached_leaderboard and
                 str(aoc_id) in cached_leaderboard["members"] and
                 "name" in cached_leaderboard["members"][str(aoc_id)]):
@@ -145,6 +145,19 @@ async def unlink_command(
             return
 
         try:
+            # Attempt to retrieve the cached leaderboard, so we can check if
+            # the user has a name on AoC. Also, it helps to check if they've
+            # completed all 25 days.
+            cached_leaderboard = leaderboard.retrieve_cached_leaderboard(cache_file=cli_args.cache_file)
+
+            aoc_username = f"Anonymous User"
+            if ("members" in cached_leaderboard and
+                str(aoc_id) in cached_leaderboard["members"] and
+                "name" in cached_leaderboard["members"][str(aoc_id)]):
+                # If the user has a name, specify it for the notification, just
+                # so they can double-check.
+                aoc_username = cached_leaderboard["members"][str(aoc_id)]["name"]
+
             with open(cli_args.mapping_file, "w") as f:
                 json.dump(
                     mapping,
@@ -152,7 +165,7 @@ async def unlink_command(
                     indent=2,  # Pretty-print it for easy of debugging
                 )
                 await ctx.respond(
-                    f"Unlinked {ctx.author.username} from AoC User ID {aoc_id}!"
+                    f"Unlinked {ctx.author.username} from AoC User ID {aoc_id} ({aoc_username})!"
                 )
 
         except FileNotFoundError as e:
