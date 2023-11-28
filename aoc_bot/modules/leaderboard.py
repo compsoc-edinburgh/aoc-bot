@@ -29,8 +29,8 @@ def get_default_year() -> int:
     """
     today = date.today()
 
-    # Return previous year if we're not in December
-    if today.month != 12:
+    # Return previous year if we're not in Nov or December
+    if today.month != 11 and today.month != 12:
         return today.year - 1
 
     return today.year

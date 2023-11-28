@@ -35,4 +35,4 @@ Some arguments explained:
 - `--slash-guild-id` is the Discord server ID where slash commands become registered with
 - `--mapping-file` is a JSON file keeping track of AoC username mappings to Discord IDs
 - `--completion-role "123123"` is OPTIONAL, a role ID to give to people who completed all days of challenges
-- `--year 2022` is OPTIONAL, to keep the bot working on last year's data after new years
+- `--year 2022` is OPTIONAL. By default, unless the current system month is November and December, it will check last year's data (so new year is handled out-of-the-box)
