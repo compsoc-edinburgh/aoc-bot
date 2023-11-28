@@ -325,7 +325,7 @@ async def on_schedule(
         # We make a backup keyed with the current time just in case.
         os.replace(
             cli_args.cache_file,
-            cli_args.cache_file + datetime.now().strftime(".%H.%M.%S.backup"),
+            cli_args.cache_file + datetime.now().strftime("%Y%m%d.%H.%M.%S.cachebackup"),
         )
         save_cached_leaderboard(new_leaderboard, cache_file=cli_args.cache_file)
         return
