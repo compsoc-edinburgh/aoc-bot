@@ -339,7 +339,7 @@ async def on_schedule(
     messages: list[str] = []
     for member_id, day, part in diff:
         message = "[{}] {} solved Day #{}.".format(
-            "﹡﹡" if part == "2" else "﹡　",
+            "★★" if part == "2" else "★　", # fullwidth space to align
             display_aoc_user(
                 mapping_file=cli_args.mapping_file,
                 aoc_user=new_leaderboard["members"][member_id],
