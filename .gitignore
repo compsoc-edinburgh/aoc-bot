@@ -3,6 +3,7 @@ mapping.json
 *.backup
 run.sh
 run_prod.sh
+.DS_Store
 .vscode/
 
 # Byte-compiled / optimized / DLL files
