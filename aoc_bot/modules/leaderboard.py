@@ -214,7 +214,7 @@ def solved_all_days(events: Set[Tuple[str, str, str]], member_id: str) -> bool:
     )
 
 
-def display_final_message(mapping_file: str, member_id: str, role_id: str) -> str:
+def display_final_message(mapping_file: str, member_id: str, role_id: str, year: Optional[int] = None) -> str:
     """Pretty-print a final message upon completing all 25 days and 50 challenges.
     If the user has a Discord account linked, show that they are eligible for
     a role. If they are not linked, suggest that it's not too late for them to
@@ -233,7 +233,10 @@ def display_final_message(mapping_file: str, member_id: str, role_id: str) -> st
     str
         The congratulatory message.
     """
-    string = "🎉 **Congrats on completing all 25 days of AoC 2022!** "
+    if year is None:
+        year = get_default_year()
+
+    string = f"🎉 **Congrats on completing all 25 days of AoC {year}!** "
     try:
         with open(mapping_file, "r") as f:
             mapping: dict[str, str] = json.load(f)
@@ -280,7 +283,7 @@ async def give_role(
                 guild=int(guild_id),
                 user=int(mapping[member_id]),
                 role=int(role_id),
-                reason="Completion of AoC 2022!",
+                reason="Completion of AoC!",
             )
     except hikari.ForbiddenError:
         print("Lacking permission to update roles")
@@ -347,6 +350,7 @@ async def on_schedule(
                 mapping_file=cli_args.mapping_file,
                 member_id=member_id,
                 role_id=cli_args.completion_role,
+		year=cli_args.year
             )
             await give_role(
                 bot=bot,
