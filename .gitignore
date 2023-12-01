@@ -1,6 +1,7 @@
 cache.json
 mapping.json
 *.backup
+*.cachebackup
 run.sh
 run_prod.sh
 .DS_Store
