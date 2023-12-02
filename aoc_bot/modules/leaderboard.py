@@ -183,7 +183,7 @@ def display_aoc_user(mapping_file: str, aoc_user: Any) -> str:
             return f"<@{mapping[str(aoc_user['id'])]}>"
 
     except (KeyError, FileNotFoundError, json.decoder.JSONDecodeError):
-        return aoc_user.get("name", "Unknown User")
+        return aoc_user.get("name", "Unknown User") or "Unknown User"
 
 
 def solved_all_days(events: Set[Tuple[str, str, str]], member_id: str) -> bool:
