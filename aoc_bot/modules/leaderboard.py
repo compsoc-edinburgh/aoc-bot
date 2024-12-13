@@ -229,7 +229,12 @@ def solved_all_days(events: Set[Tuple[str, str, str]], member_id: str) -> bool:
     )
 
 
-def display_final_message(mapping_file: str, member_id: str, role_id: Optional[str], year: Optional[int] = None) -> str:
+def display_final_message(
+    mapping_file: str,
+    member_id: str,
+    role_id: Optional[str],
+    year: Optional[int] = None,
+) -> str:
     """Pretty-print a final message upon completing all 25 days and 50 challenges.
     If the user has a Discord account linked, show that they are eligible for
     a role. If they are not linked, suggest that it's not too late for them to
@@ -258,11 +263,14 @@ def display_final_message(mapping_file: str, member_id: str, role_id: Optional[s
             with open(mapping_file, "r") as f:
                 mapping: dict[str, str] = json.load(f)
                 assert member_id in mapping
-                string += (
-                    f"As a reward, you get the <@&{role_id}> role until the end of January!"
-                )
+                string += f"As a reward, you get the <@&{role_id}> role until the end of January!"
 
-        except (AssertionError, KeyError, FileNotFoundError, json.decoder.JSONDecodeError):
+        except (
+            AssertionError,
+            KeyError,
+            FileNotFoundError,
+            json.decoder.JSONDecodeError,
+        ):
             # If a user links their AoC account after completing all 25 days,
             # they will automatically get the role. See link_command.py.
             string += "If you want to receive a coloured name as a reward, link your AoC account with `/link_aoc`!"
@@ -375,7 +383,7 @@ async def on_schedule(
                 mapping_file=cli_args.mapping_file,
                 member_id=member_id,
                 role_id=cli_args.completion_role,
-		year=cli_args.year
+                year=cli_args.year,
             )
             if cli_args.completion_role:
                 await give_role(
