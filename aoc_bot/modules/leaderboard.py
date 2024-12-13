@@ -11,6 +11,7 @@ import json
 import os
 from datetime import date, datetime
 from typing import Any, Optional, Set, Tuple
+import typing
 
 import hikari
 import requests
@@ -160,8 +161,14 @@ async def send_webhook_notification(
     )
 
 
-def display_aoc_user(mapping_file: str, aoc_user: Any) -> str:
-    """Pretty-print an AoC User object in the parsed API response.
+def display_aoc_user(
+    mapping_file: str,
+    aoc_user: Any,
+    discord_members: typing.Mapping[hikari.Snowflake, hikari.Member],
+) -> str:
+    """Pretty-print an AoC User object in the parsed API response. If the user
+    has a Discord account linked and they are in the server member list provided
+    as an argument, mention them. Otherwise, display their AoC username.
 
     Parameters
     ----------
@@ -171,6 +178,8 @@ def display_aoc_user(mapping_file: str, aoc_user: Any) -> str:
     aoc_user : Any
         The AoC User object in the parsed API response, where some notable keys
         include "name", "id", "completion_day_level", and "last_star_ts".
+    discord_members : typing.Mapping[hikari.Snowflake, hikari.Member]
+        The mapping of Discord user IDs to Member objects.
 
     Returns
     -------
@@ -180,7 +189,13 @@ def display_aoc_user(mapping_file: str, aoc_user: Any) -> str:
     try:
         with open(mapping_file, "r") as f:
             mapping: dict[str, str] = json.load(f)
-            return f"<@{mapping[str(aoc_user['id'])]}>"
+
+        # Only mention the user if they are in the server, since otherwise it'll
+        # appear as @unknown-user, which is worse than the fallback case.
+        if hikari.Snowflake(int(mapping[str(aoc_user["id"])])) not in discord_members:
+            raise KeyError
+
+        return f"<@{mapping[str(aoc_user['id'])]}>"
 
     except (KeyError, FileNotFoundError, json.decoder.JSONDecodeError):
         return aoc_user.get("name", None) or f"Anonymous User #{aoc_user['id']}"
@@ -329,20 +344,26 @@ async def on_schedule(
         # We make a backup keyed with the current time just in case.
         os.replace(
             cli_args.cache_file,
-            cli_args.cache_file + datetime.now().strftime("%Y%m%d.%H.%M.%S.cachebackup"),
+            cli_args.cache_file
+            + datetime.now().strftime("%Y%m%d.%H.%M.%S.cachebackup"),
         )
         save_cached_leaderboard(new_leaderboard, cache_file=cli_args.cache_file)
         return
+
+    # Get all Discord users in the guild
+    guild = await bot.rest.fetch_guild(cli_args.slash_guild_id)
+    members = guild.get_members()
 
     # Accumlate all messages for updates at this check. There can be multiple
     # people!
     messages: list[str] = []
     for member_id, day, part in diff:
         message = "[{}] {} solved Day #{}.".format(
-            "★★" if part == "2" else "★　", # fullwidth space to align
+            "★★" if part == "2" else "★　",  # fullwidth space to align
             display_aoc_user(
                 mapping_file=cli_args.mapping_file,
                 aoc_user=new_leaderboard["members"][member_id],
+                discord_members=members,
             ),
             day,
         )

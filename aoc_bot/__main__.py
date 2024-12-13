@@ -67,7 +67,10 @@ parser.add_argument(
 
 def main():
     args = parser.parse_args()
-    bot = hikari.GatewayBot(token=args.discord_token)
+    bot = hikari.GatewayBot(
+        token=args.discord_token,
+        intents=hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MEMBERS,
+    )
 
     (
         # Setting `declare_global_commands` to True will propagate commands globally,
