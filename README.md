@@ -8,6 +8,7 @@ Requirements:
 - Session cookie for AoC API access (the value after `session=` in browser's Cookie)
 - A webhook ID and Token for the bot to send messages
 - Bot needs to be added to the guild with slash command permissions
+- Bot needs to have the Members intent enabled in the Discord developer console
 
 The bot uses webhooks to send messages instead of Discord's native message-sending functionality, in order to spoof the username and display image. This means that this bot can run with any Bot token and it will function and look the same.
 
