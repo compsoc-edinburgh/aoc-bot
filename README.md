@@ -1,16 +1,21 @@
 # AoC Bot
 
+![Screenshot](https://i.imgur.com/Rek8sAO.png)
+
 Can run on any server. Every year one volunteer within CompSoc Discord's admin team tends to runs it on their VPS.
 
-Built with Poetry, so instructions are simplest with Poetry:
+### Requirements
 
-Requirements:
 - Session cookie for AoC API access (the value after `session=` in browser's Cookie)
 - A webhook ID and Token for the bot to send messages
 - Bot needs to be added to the guild with slash command permissions
 - Bot needs to have the Members intent enabled in the Discord developer console
 
 The bot uses webhooks to send messages instead of Discord's native message-sending functionality, in order to spoof the username and display image. This means that this bot can run with any Bot token and it will function and look the same.
+
+### Running
+
+Built with Poetry, so instructions are simplest with Poetry. Poetry is a project-level package management tool for Python.
 
 ```bash
 poetry install
@@ -37,3 +42,4 @@ Some arguments explained:
 - `--mapping-file` is a JSON file keeping track of AoC username mappings to Discord IDs
 - `--completion-role "123123"` is OPTIONAL, a role ID to give to people who completed all days of challenges
 - `--year 2022` is OPTIONAL. By default, unless the current system month is November and December, it will check last year's data (so new year is handled out-of-the-box)
+- `--require-both-stars` is OPTIONAL. By default, the bot will notify on every star which can be obnoxious if there are hundreds of people in the leaderboard. Adding this argument will only make it notify when users complete both parts of a day's problem.
