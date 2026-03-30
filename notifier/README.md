@@ -1,3 +1,7 @@
+# Archived
+
+This repository and codebase has been superceded by [adventure](https://github.com/compsoc-edinburgh/adventure), which is a monolithic application that contains what was previously AoC-bot as a subcomponent. This was necessary in order to more closely couple the star data between the AoC eShop and the notifier, to avoid making double API requests to AoC and to align the sync timestamps.
+
 # AoC Bot
 
 ![Screenshot](https://i.imgur.com/Rek8sAO.png)
